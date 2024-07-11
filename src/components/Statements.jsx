@@ -64,8 +64,13 @@ function Statements() {
             className="p-2 border border-gray-300 bg-gray-100 rounded mb-2 md:mb-0 md:mr-4"
           >
             <option value="">Pilih</option>
-            <option value="variabel1">variabel1</option>
-            <option value="variabel2">variabel2</option>
+            <option value="Useful">Useful</option>
+            <option value="Usable">Usable</option>
+            <option value="Findable">Findable</option>
+            <option value="Credible">Credible</option>
+            <option value="Desirable">Desirable</option>
+            <option value="Accessible">Accessible</option>
+            <option value="Valuable">Valuable</option>
           </select>
         </div>
         <button onClick={addStatement} className="bg-green-500 text-white py-2 px-4 rounded self-end">
