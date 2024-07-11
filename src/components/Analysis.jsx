@@ -18,17 +18,25 @@ function Analysis() {
       const { data: respondents, error: respondentsError } = await supabase.from('respondents').select('*');
       if (respondentsError) throw new Error(respondentsError.message);
 
-      // Calculate total and average scores
-      const analysisData = statements.map(statement => {
-        const totalScore = respondents.reduce((acc, respondent) => {
-          const responseScore = respondent.responses[statement.id];
-          return acc + (responseScore || 0); // Add score if it exists, otherwise add 0
-        }, 0);
+      // Calculate scores for each respondent
+      const analysisData = respondents.map(respondent => {
+        const variables = ['Useful', 'Usable', 'Findable', 'Credible', 'Desirable', 'Accessible', 'Valuable'];
+        const scores = variables.reduce((acc, variable) => {
+          acc[variable] = statements.reduce((total, statement) => {
+            if (statement.variable === variable) {
+              total += respondent.responses[statement.id] || 0;
+            }
+            return total;
+          }, 0);
+          return acc;
+        }, {});
 
-        const averageScore = respondents.length > 0 ? (totalScore / respondents.length).toFixed(2) : 0;
+        const totalScore = Object.values(scores).reduce((acc, score) => acc + score, 0);
+        const averageScore = variables.length > 0 ? (totalScore / variables.length).toFixed(2) : 0;
 
         return {
-          ...statement,
+          name: respondent.name,
+          ...scores,
           totalScore,
           averageScore
         };
@@ -50,20 +58,32 @@ function Analysis() {
           <thead className='border border-gray-300 bg-green-500 text-white'>
             <tr>
               <th className='border border-gray-300 p-2'>No</th>
-              <th className='border border-gray-300 p-2'>Pernyataan</th>
-              <th className='border border-gray-300 p-2'>Variabel</th>
+              <th className='border border-gray-300 p-2'>Responden</th>
+              <th className='border border-gray-300 p-2'>Useful</th>
+              <th className='border border-gray-300 p-2'>Usable</th>
+              <th className='border border-gray-300 p-2'>Findable</th>
+              <th className='border border-gray-300 p-2'>Credible</th>
+              <th className='border border-gray-300 p-2'>Desirable</th>
+              <th className='border border-gray-300 p-2'>Accessible</th>
+              <th className='border border-gray-300 p-2'>Valuable</th>
               <th className='border border-gray-300 p-2'>Total Skor</th>
               <th className='border border-gray-300 p-2'>Rata-rata Skor</th>
             </tr>
           </thead>
           <tbody>
             {analysisData.map((data, index) => (
-              <tr key={data.id}>
+              <tr key={index}>
                 <td className='border border-gray-300 p-2 w-12 text-center'>{index + 1}</td>
-                <td className='border border-gray-300 p-2 w-12'>{data.statement}</td>
-                <td className='border border-gray-300 p-2 w-12 text-center'>{data.variable}</td>
-                <td className='border border-gray-300 p-2 w-12 text-center'>{data.totalScore}</td>
-                <td className='border border-gray-300 p-2 w-12 text-center'>{data.averageScore}</td>
+                <td className='border border-gray-300 p-2'>{data.name}</td>
+                <td className='border border-gray-300 p-2 text-center'>{data.Useful}</td>
+                <td className='border border-gray-300 p-2 text-center'>{data.Usable}</td>
+                <td className='border border-gray-300 p-2 text-center'>{data.Findable}</td>
+                <td className='border border-gray-300 p-2 text-center'>{data.Credible}</td>
+                <td className='border border-gray-300 p-2 text-center'>{data.Desirable}</td>
+                <td className='border border-gray-300 p-2 text-center'>{data.Accessible}</td>
+                <td className='border border-gray-300 p-2 text-center'>{data.Valuable}</td>
+                <td className='border border-gray-300 p-2 text-center'>{data.totalScore}</td>
+                <td className='border border-gray-300 p-2 text-center'>{data.averageScore}</td>
               </tr>
             ))}
           </tbody>
