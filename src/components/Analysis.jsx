@@ -18,16 +18,19 @@ function Analysis() {
       const { data: respondents, error: respondentsError } = await supabase.from('respondents').select('*');
       if (respondentsError) throw new Error(respondentsError.message);
 
-      // Calculate total scores
+      // Calculate total and average scores
       const analysisData = statements.map(statement => {
         const totalScore = respondents.reduce((acc, respondent) => {
           const responseScore = respondent.responses[statement.id];
           return acc + (responseScore || 0); // Add score if it exists, otherwise add 0
         }, 0);
 
+        const averageScore = respondents.length > 0 ? (totalScore / respondents.length).toFixed(2) : 0;
+
         return {
           ...statement,
           totalScore,
+          averageScore
         };
       });
 
@@ -60,7 +63,7 @@ function Analysis() {
                 <td className='border border-gray-300 p-2 w-12'>{data.statement}</td>
                 <td className='border border-gray-300 p-2 w-12 text-center'>{data.variable}</td>
                 <td className='border border-gray-300 p-2 w-12 text-center'>{data.totalScore}</td>
-                <td className='border border-gray-300 p-2 w-12 text-center'>%</td>
+                <td className='border border-gray-300 p-2 w-12 text-center'>{data.averageScore}</td>
               </tr>
             ))}
           </tbody>

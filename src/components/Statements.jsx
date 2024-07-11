@@ -56,45 +56,49 @@ function Statements() {
             placeholder="Pernyataan baru"
             className="p-2 border border-gray-300 bg-gray-100 rounded mb-2 md:mb-0 md:mr-4"
           />
-          <input
+          <select
             type="text"
             value={newVariable}
             onChange={(e) => setNewVariable(e.target.value)}
             placeholder="Tambahkan variabel"
             className="p-2 border border-gray-300 bg-gray-100 rounded mb-2 md:mb-0 md:mr-4"
-          />
+          >
+            <option value="">Pilih</option>
+            <option value="variabel1">variabel1</option>
+            <option value="variabel2">variabel2</option>
+          </select>
         </div>
         <button onClick={addStatement} className="bg-green-500 text-white py-2 px-4 rounded self-end">
           Tambah
         </button>
       </div>
-        <table className="min-w-full border border-gray-300">
-          <thead className='bg-green-500 text-white'>
-            <tr>
-              <th className='border border-gray-300 p-2'>No</th>
-              <th className='border border-gray-300 p-2'>Pernyataan</th>
-              <th className='border border-gray-300 p-2'>Variabel</th>
-              <th className='border border-gray-300 p-2'>Aksi</th>
+      <table className="min-w-full border border-gray-300">
+        <thead className='bg-green-500 text-white'>
+          <tr>
+            <th className='border border-gray-300 p-2'>No</th>
+            <th className='border border-gray-300 p-2'>Pernyataan</th>
+            <th className='border border-gray-300 p-2'>Variabel</th>
+            <th className='border border-gray-300 p-2'>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {statements.map((statement, index) => (
+            <tr key={statement.id} className='even:bg-gray-100'>
+              <td className='border border-gray-300 p-2 text-center'>{index + 1}</td>
+              <td className='border border-gray-300 p-2'>{statement.statement}</td>
+              <td className='border border-gray-300 p-2 text-center'>{statement.variable}</td>
+              <td className='border border-gray-300 p-2 text-center'>
+                <button
+                  className="bg-red-500 text-white py-1 px-2 rounded"
+                  onClick={() => deleteStatement(statement.id)}
+                >
+                  Hapus
+                </button>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {statements.map((statement, index) => (
-              <tr key={statement.id} className='even:bg-gray-100'>
-                <td className='border border-gray-300 p-2 text-center'>{index + 1}</td>
-                <td className='border border-gray-300 p-2'>{statement.statement}</td>
-                <td className='border border-gray-300 p-2 text-center'>{statement.variable}</td>
-                <td className='border border-gray-300 p-2 text-center'>
-                  <button 
-                    className="bg-red-500 text-white py-1 px-2 rounded"
-                    onClick={() => deleteStatement(statement.id)}
-                  >
-                    Hapus
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
