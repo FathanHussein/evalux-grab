@@ -5,6 +5,7 @@ function Header({ onLoginClick, isAdmin, onLogoutClick }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
+  const closeDropdown = () => setIsDropdownOpen(false);
 
   return (
     <header className="flex justify-between items-center p-4 bg-green-500 text-white relative">
@@ -15,15 +16,15 @@ function Header({ onLoginClick, isAdmin, onLogoutClick }) {
           <div className="absolute bg-white text-black rounded shadow-lg top-full left-0">
             {isAdmin ? (
               <>
-                <Link to="/dashboard" className="block m-2 px-4 py-2 hover:bg-green-500">Dashboard</Link>
-                <Link to="/listofstatements" className="block m-2 px-4 py-2 hover:bg-green-500">Daftar Pernyataan</Link>
-                <Link to="/analysis" className="block m-2 px-4 py-2 hover:bg-green-500">Analisis</Link>
-                <Link to="/respondents" className="block m-2 px-4 py-2 hover:bg-green-500">Responden</Link>
+                <Link to="/dashboard" className="block m-2 px-4 py-2 hover:bg-green-500" onClick={closeDropdown}>Dashboard</Link>
+                <Link to="/listofstatements" className="block m-2 px-4 py-2 hover:bg-green-500" onClick={closeDropdown}>Daftar Pernyataan</Link>
+                <Link to="/analysis" className="block m-2 px-4 py-2 hover:bg-green-500" onClick={closeDropdown}>Analisis</Link>
+                <Link to="/respondents" className="block m-2 px-4 py-2 hover:bg-green-500" onClick={closeDropdown}>Responden</Link>
               </>
             ) : (
               <>
-                <Link to="/questionnaire" className="block m-2 px-4 py-2 hover:bg-green-500">Kuesioner</Link>
-                <Link to="/scores" className="block m-2 px-4 py-2 hover:bg-green-500">Skor</Link>
+                <Link to="/questionnaire" className="block m-2 px-4 py-2 hover:bg-green-500" onClick={closeDropdown}>Kuesioner</Link>
+                <Link to="/scores" className="block m-2 px-4 py-2 hover:bg-green-500" onClick={closeDropdown}>Skor</Link>
               </>
             )}
           </div>
