@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header';
 import WelcomePage from './components/WelcomePage';
@@ -9,11 +9,18 @@ import Respondents from './components/Respondents';
 import Dashboard from './components/Dashboard';
 import Scores from './components/Scores';
 import LoginModal from './components/LoginModal';
-import Footer from './components/Footer';  // Impor Footer
+import Footer from './components/Footer';
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  useEffect(() => {
+    const storedIsAdmin = localStorage.getItem('isAdmin');
+    if (storedIsAdmin === 'true') {
+      setIsAdmin(true);
+    }
+  }, []);
 
   const handleLoginClick = () => {
     setIsLoginModalOpen(true);
@@ -25,6 +32,12 @@ function App() {
 
   const handleLogoutClick = () => {
     setIsAdmin(false);
+    localStorage.removeItem('isAdmin');
+  };
+
+  const handleLogin = (isAdminStatus) => {
+    setIsAdmin(isAdminStatus);
+    localStorage.setItem('isAdmin', isAdminStatus);
   };
 
   return (
@@ -33,7 +46,7 @@ function App() {
       <LoginModal 
         isOpen={isLoginModalOpen} 
         onClose={handleCloseLoginModal} 
-        onLogin={setIsAdmin} 
+        onLogin={handleLogin} 
       />
       <main className="flex-grow">
         <Routes>

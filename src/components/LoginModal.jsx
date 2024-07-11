@@ -39,7 +39,7 @@ function LoginModal({ isOpen, onClose, onLogin }) {
               className="w-full px-2 py-1 border border-[#EDEEF0] bg-[#F9FAFC] rounded"
             />
           </div>
-          <button type="submit" className="w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600" to="/dashboard">Login</button>
+          <button type="submit" className="w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Login</button>
           <button type="button" onClick={onClose} className="w-full mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Cancel</button>
         </form>
       </div>
