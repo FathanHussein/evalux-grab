@@ -1,13 +1,44 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import supabase from '../supabaseClient';
 
 function Dashboard() {
+  const [respondentCount, setRespondentCount] = useState(0);
+  const [statementCount, setStatementCount] = useState(0);
+
+  useEffect(() => {
+    fetchCounts();
+  }, []);
+
+  const fetchCounts = async () => {
+    try {
+      const { count: statementCount, error: statementCountError } = await supabase
+        .from('statements')
+        .select('*', { count: 'exact', head: true });
+      if (statementCountError) throw new Error(statementCountError.message);
+
+      const { count: respondentCount, error: respondentCountError } = await supabase
+        .from('respondents')
+        .select('*', { count: 'exact', head: true });
+      if (respondentCountError) throw new Error(respondentCountError.message);
+
+      setStatementCount(statementCount);
+      setRespondentCount(respondentCount);
+    } catch (error) {
+      console.error('Error fetching counts:', error.message);
+    }
+  };
+
   return (
     <div>
-      <table class="border border-[#70AD47] w-full">
+      <table className="border border-[#70AD47] w-full">
         <thead className='border border-[#70AD47] h-36'>
           <tr>
-            <th className='border border-[#70AD47] bg-[#A2CC8F] w-1/2 font-semibold text-3xl'>35 Pernyataan</th>
-            <th className='border border-[#70AD47] bg-[#A2CC8F] w-1/2 font-semibold text-3xl'>100 Responden</th>
+            <th className='border border-[#70AD47] bg-[#A2CC8F] w-1/2 font-semibold text-3xl'>
+              {statementCount} Pernyataan
+            </th>
+            <th className='border border-[#70AD47] bg-[#A2CC8F] w-1/2 font-semibold text-3xl'>
+              {respondentCount} Responden
+            </th>
           </tr>
         </thead>
       </table>

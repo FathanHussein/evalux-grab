@@ -5,12 +5,14 @@ function Statements() {
   const [statements, setStatements] = useState([]);
   const [newStatement, setNewStatement] = useState('');
   const [newVariable, setNewVariable] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchStatements();
   }, []);
 
   const fetchStatements = async () => {
+    setLoading(true);
     const { data, error } = await supabase.from('statements').select('*');
     if (error) {
       console.error('Error fetching statements:', error);
@@ -18,16 +20,23 @@ function Statements() {
       console.log('Fetched statements:', data);
       setStatements(data);
     }
+    setLoading(false);
   };
 
   const addStatement = async () => {
+    if (newStatement.trim() === '' || newVariable.trim() === '') {
+      alert('Pernyataan dan variabel harus diisi.');
+      return;
+    }
+
     console.log('Adding statement:', newStatement, 'with variable:', newVariable);
     const { data, error } = await supabase.from('statements').insert([{ statement: newStatement, variable: newVariable }]);
     if (error) {
       console.error('Error adding statement:', error);
     } else {
       console.log('Statement added:', data);
-      setStatements([...statements, data[0]]);
+      // Fetch statements again to update the list
+      fetchStatements();
       setNewStatement('');
       setNewVariable('');
     }
@@ -38,7 +47,7 @@ function Statements() {
     if (error) {
       console.error('Error deleting statement:', error);
     } else {
-      setStatements(statements.filter(statement => statement.id !== id));
+      fetchStatements();
     }
   };
 
@@ -57,10 +66,8 @@ function Statements() {
             className="p-2 border border-gray-300 bg-gray-100 rounded mb-2 md:mb-0 md:mr-4"
           />
           <select
-            type="text"
             value={newVariable}
             onChange={(e) => setNewVariable(e.target.value)}
-            placeholder="Tambahkan variabel"
             className="p-2 border border-gray-300 bg-gray-100 rounded mb-2 md:mb-0 md:mr-4"
           >
             <option value="">Pilih</option>
@@ -77,33 +84,37 @@ function Statements() {
           Tambah
         </button>
       </div>
-      <table className="min-w-full border border-gray-300">
-        <thead className='bg-green-500 text-white'>
-          <tr>
-            <th className='border border-gray-300 p-2'>No</th>
-            <th className='border border-gray-300 p-2'>Pernyataan</th>
-            <th className='border border-gray-300 p-2'>Variabel</th>
-            <th className='border border-gray-300 p-2'>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {statements.map((statement, index) => (
-            <tr key={statement.id} className='even:bg-gray-100'>
-              <td className='border border-gray-300 p-2 text-center'>{index + 1}</td>
-              <td className='border border-gray-300 p-2'>{statement.statement}</td>
-              <td className='border border-gray-300 p-2 text-center'>{statement.variable}</td>
-              <td className='border border-gray-300 p-2 text-center'>
-                <button
-                  className="bg-red-500 text-white py-1 px-2 rounded"
-                  onClick={() => deleteStatement(statement.id)}
-                >
-                  Hapus
-                </button>
-              </td>
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        <table className="min-w-full border border-gray-300">
+          <thead className='bg-green-500 text-white'>
+            <tr>
+              <th className='border border-gray-300 p-2'>No</th>
+              <th className='border border-gray-300 p-2'>Pernyataan</th>
+              <th className='border border-gray-300 p-2'>Variabel</th>
+              <th className='border border-gray-300 p-2'>Aksi</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {statements.map((statement, index) => (
+              <tr key={statement.id} className='even:bg-gray-100'>
+                <td className='border border-gray-300 p-2 text-center'>{index + 1}</td>
+                <td className='border border-gray-300 p-2'>{statement.statement}</td>
+                <td className='border border-gray-300 p-2 text-center'>{statement.variable}</td>
+                <td className='border border-gray-300 p-2 text-center'>
+                  <button
+                    className="bg-red-500 text-white py-1 px-2 rounded"
+                    onClick={() => deleteStatement(statement.id)}
+                  >
+                    Hapus
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }
