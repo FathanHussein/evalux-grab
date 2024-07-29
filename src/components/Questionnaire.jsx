@@ -16,7 +16,7 @@ function Questionnaire() {
   }, []);
 
   const fetchStatements = async () => {
-    const { data, error } = await supabase.from('statements').select('*');
+    const { data, error } = await supabase.from('statements').select('*').order('order', { ascending: true });
     if (error) console.error(error);
     else setStatements(data);
   };
