@@ -5,7 +5,6 @@ function Statements() {
   const [statements, setStatements] = useState([]);
   const [newStatement, setNewStatement] = useState('');
   const [newVariable, setNewVariable] = useState('');
-  const [newOrder, setNewOrder] = useState('');
 
   useEffect(() => {
     fetchStatements();
@@ -37,6 +36,15 @@ function Statements() {
       setStatements([...statements, data[0]]);
       setNewStatement('');
       setNewVariable('');
+    }
+  };
+
+  const deleteStatement = async (id) => {
+    const { error } = await supabase.from('statements').delete().eq('id', id);
+    if (error) {
+      console.error('Error deleting statement:', error);
+    } else {
+      fetchStatements();
     }
   };
 
@@ -116,6 +124,18 @@ function Statements() {
                   onClick={() => deleteStatement(statement.id)}
                 >
                   Hapus
+                </button>
+                <button
+                  className="bg-blue-500 text-white py-1 px-2 rounded ml-2"
+                  onClick={() => updateStatementOrder(statement.id, statement.order - 1)}
+                >
+                  Up
+                </button>
+                <button
+                  className="bg-blue-500 text-white py-1 px-2 rounded ml-2"
+                  onClick={() => updateStatementOrder(statement.id, statement.order + 1)}
+                >
+                  Down
                 </button>
               </td>
             </tr>
