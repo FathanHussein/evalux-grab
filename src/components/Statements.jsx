@@ -48,28 +48,6 @@ function Statements() {
     }
   };
 
-  const updateStatementOrder = async (statementId, newOrder) => {
-    try {
-      const { data: currentStatement, error: currentError } = await supabase.from('statements').select('order').eq('id', statementId).single();
-      if (currentError) throw new Error(currentError.message);
-
-      const currentOrder = currentStatement.order;
-
-      if (newOrder > currentOrder) {
-        await supabase.from('statements').update({ order: supabase.raw('order - 1') }).gt('order', currentOrder).lte('order', newOrder);
-      } else {
-        await supabase.from('statements').update({ order: supabase.raw('order + 1') }).lt('order', currentOrder).gte('order', newOrder);
-      }
-
-      const { error: updateError } = await supabase.from('statements').update({ order: newOrder }).eq('id', statementId);
-      if (updateError) throw new Error(updateError.message);
-
-      fetchStatements();
-    } catch (error) {
-      console.error('Error updating statement order:', error);
-    }
-  };
-
   return (
     <div className='p-4'>
       <h2 className='text-2xl md:text-3xl text-green-500 font-semibold mb-4 md:mb-8'>
@@ -124,18 +102,6 @@ function Statements() {
                   onClick={() => deleteStatement(statement.id)}
                 >
                   Hapus
-                </button>
-                <button
-                  className="bg-blue-500 text-white py-1 px-2 rounded ml-2"
-                  onClick={() => updateStatementOrder(statement.id, statement.order - 1)}
-                >
-                  Up
-                </button>
-                <button
-                  className="bg-blue-500 text-white py-1 px-2 rounded ml-2"
-                  onClick={() => updateStatementOrder(statement.id, statement.order + 1)}
-                >
-                  Down
                 </button>
               </td>
             </tr>
