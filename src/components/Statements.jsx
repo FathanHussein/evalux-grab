@@ -5,49 +5,60 @@ function Statements() {
   const [statements, setStatements] = useState([]);
   const [newStatement, setNewStatement] = useState('');
   const [newVariable, setNewVariable] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [newOrder, setNewOrder] = useState('');
 
   useEffect(() => {
     fetchStatements();
   }, []);
 
   const fetchStatements = async () => {
-    setLoading(true);
-    const { data, error } = await supabase.from('statements').select('*');
+    const { data, error } = await supabase.from('statements').select('*').order('order', { ascending: true });
     if (error) {
       console.error('Error fetching statements:', error);
     } else {
-      console.log('Fetched statements:', data);
       setStatements(data);
     }
-    setLoading(false);
   };
 
   const addStatement = async () => {
-    if (newStatement.trim() === '' || newVariable.trim() === '') {
-      alert('Pernyataan dan variabel harus diisi.');
+    const { data: maxOrderData, error: maxOrderError } = await supabase.from('statements').select('order').order('order', { ascending: false }).limit(1);
+    if (maxOrderError) {
+      console.error('Error fetching statements order:', maxOrderError);
       return;
     }
 
-    console.log('Adding statement:', newStatement, 'with variable:', newVariable);
-    const { data, error } = await supabase.from('statements').insert([{ statement: newStatement, variable: newVariable }]);
+    const maxOrder = maxOrderData.length > 0 ? maxOrderData[0].order : 0;
+    const newOrder = maxOrder + 1;
+
+    const { data, error } = await supabase.from('statements').insert([{ statement: newStatement, variable: newVariable, order: newOrder }]);
     if (error) {
       console.error('Error adding statement:', error);
     } else {
-      console.log('Statement added:', data);
-      // Fetch statements again to update the list
-      fetchStatements();
+      setStatements([...statements, data[0]]);
       setNewStatement('');
       setNewVariable('');
     }
   };
 
-  const deleteStatement = async (id) => {
-    const { error } = await supabase.from('statements').delete().eq('id', id);
-    if (error) {
-      console.error('Error deleting statement:', error);
-    } else {
+  const updateStatementOrder = async (statementId, newOrder) => {
+    try {
+      const { data: currentStatement, error: currentError } = await supabase.from('statements').select('order').eq('id', statementId).single();
+      if (currentError) throw new Error(currentError.message);
+
+      const currentOrder = currentStatement.order;
+
+      if (newOrder > currentOrder) {
+        await supabase.from('statements').update({ order: supabase.raw('order - 1') }).gt('order', currentOrder).lte('order', newOrder);
+      } else {
+        await supabase.from('statements').update({ order: supabase.raw('order + 1') }).lt('order', currentOrder).gte('order', newOrder);
+      }
+
+      const { error: updateError } = await supabase.from('statements').update({ order: newOrder }).eq('id', statementId);
+      if (updateError) throw new Error(updateError.message);
+
       fetchStatements();
+    } catch (error) {
+      console.error('Error updating statement order:', error);
     }
   };
 
@@ -84,37 +95,42 @@ function Statements() {
           Tambah
         </button>
       </div>
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <table className="min-w-full border border-gray-300">
-          <thead className='bg-green-500 text-white'>
-            <tr>
-              <th className='border border-gray-300 p-2'>No</th>
-              <th className='border border-gray-300 p-2'>Pernyataan</th>
-              <th className='border border-gray-300 p-2'>Variabel</th>
-              <th className='border border-gray-300 p-2'>Aksi</th>
+      <table className="min-w-full border border-gray-300">
+        <thead className='bg-green-500 text-white'>
+          <tr>
+            <th className='border border-gray-300 p-2'>No</th>
+            <th className='border border-gray-300 p-2'>Pernyataan</th>
+            <th className='border border-gray-300 p-2'>Variabel</th>
+            <th className='border border-gray-300 p-2'>Order</th>
+            <th className='border border-gray-300 p-2'>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {statements.map((statement, index) => (
+            <tr key={statement.id} className='even:bg-gray-100'>
+              <td className='border border-gray-300 p-2 text-center'>{index + 1}</td>
+              <td className='border border-gray-300 p-2'>{statement.statement}</td>
+              <td className='border border-gray-300 p-2 text-center'>{statement.variable}</td>
+              <td className='border border-gray-300 p-2 text-center'>
+                <input
+                  type="number"
+                  value={statement.order}
+                  onChange={(e) => updateStatementOrder(statement.id, parseInt(e.target.value, 10))}
+                  className="p-1 border border-gray-300 w-16 text-center"
+                />
+              </td>
+              <td className='border border-gray-300 p-2 text-center'>
+                <button
+                  className="bg-red-500 text-white py-1 px-2 rounded"
+                  onClick={() => deleteStatement(statement.id)}
+                >
+                  Hapus
+                </button>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {statements.map((statement, index) => (
-              <tr key={statement.id} className='even:bg-gray-100'>
-                <td className='border border-gray-300 p-2 text-center'>{index + 1}</td>
-                <td className='border border-gray-300 p-2'>{statement.statement}</td>
-                <td className='border border-gray-300 p-2 text-center'>{statement.variable}</td>
-                <td className='border border-gray-300 p-2 text-center'>
-                  <button
-                    className="bg-red-500 text-white py-1 px-2 rounded"
-                    onClick={() => deleteStatement(statement.id)}
-                  >
-                    Hapus
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
