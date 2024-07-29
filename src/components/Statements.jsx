@@ -5,7 +5,6 @@ function Statements() {
   const [statements, setStatements] = useState([]);
   const [newStatement, setNewStatement] = useState('');
   const [newVariable, setNewVariable] = useState('');
-  const [newOrder, setNewOrder] = useState('');
 
   useEffect(() => {
     fetchStatements();
@@ -37,6 +36,15 @@ function Statements() {
       setStatements([...statements, data[0]]);
       setNewStatement('');
       setNewVariable('');
+    }
+  };
+
+  const deleteStatement = async (id) => {
+    const { error } = await supabase.from('statements').delete().eq('id', id);
+    if (error) {
+      console.error('Error deleting statement:', error);
+    } else {
+      fetchStatements();
     }
   };
 
@@ -101,7 +109,6 @@ function Statements() {
             <th className='border border-gray-300 p-2'>No</th>
             <th className='border border-gray-300 p-2'>Pernyataan</th>
             <th className='border border-gray-300 p-2'>Variabel</th>
-            <th className='border border-gray-300 p-2'>Order</th>
             <th className='border border-gray-300 p-2'>Aksi</th>
           </tr>
         </thead>
@@ -112,19 +119,23 @@ function Statements() {
               <td className='border border-gray-300 p-2'>{statement.statement}</td>
               <td className='border border-gray-300 p-2 text-center'>{statement.variable}</td>
               <td className='border border-gray-300 p-2 text-center'>
-                <input
-                  type="number"
-                  value={statement.order}
-                  onChange={(e) => updateStatementOrder(statement.id, parseInt(e.target.value, 10))}
-                  className="p-1 border border-gray-300 w-16 text-center"
-                />
-              </td>
-              <td className='border border-gray-300 p-2 text-center'>
                 <button
                   className="bg-red-500 text-white py-1 px-2 rounded"
                   onClick={() => deleteStatement(statement.id)}
                 >
                   Hapus
+                </button>
+                <button
+                  className="bg-blue-500 text-white py-1 px-2 rounded ml-2"
+                  onClick={() => updateStatementOrder(statement.id, statement.order - 1)}
+                >
+                  Up
+                </button>
+                <button
+                  className="bg-blue-500 text-white py-1 px-2 rounded ml-2"
+                  onClick={() => updateStatementOrder(statement.id, statement.order + 1)}
+                >
+                  Down
                 </button>
               </td>
             </tr>
