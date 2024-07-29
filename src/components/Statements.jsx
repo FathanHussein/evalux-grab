@@ -101,7 +101,6 @@ function Statements() {
             <th className='border border-gray-300 p-2'>No</th>
             <th className='border border-gray-300 p-2'>Pernyataan</th>
             <th className='border border-gray-300 p-2'>Variabel</th>
-            <th className='border border-gray-300 p-2'>Order</th>
             <th className='border border-gray-300 p-2'>Aksi</th>
           </tr>
         </thead>
@@ -111,14 +110,6 @@ function Statements() {
               <td className='border border-gray-300 p-2 text-center'>{index + 1}</td>
               <td className='border border-gray-300 p-2'>{statement.statement}</td>
               <td className='border border-gray-300 p-2 text-center'>{statement.variable}</td>
-              <td className='border border-gray-300 p-2 text-center'>
-                <input
-                  type="number"
-                  value={statement.order}
-                  onChange={(e) => updateStatementOrder(statement.id, parseInt(e.target.value, 10))}
-                  className="p-1 border border-gray-300 w-16 text-center"
-                />
-              </td>
               <td className='border border-gray-300 p-2 text-center'>
                 <button
                   className="bg-red-500 text-white py-1 px-2 rounded"
